@@ -1,57 +1,51 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>戴大爷测试页</title>
-    <style>body { font-family: sans-serif; padding: 20px; }</style>
-</head>
 <body>
-    <h1>戴大爷IP站 - 测试模式</h1>
+    <h1>通路测试</h1>
+    <button onclick="testList()">1. 测试列表接口</button>
+    <p id="res1"></p>
     
-    <h2>1. 上传测试</h2>
-    <input type="file" id="fileInput" accept="image/png">
-    <button onclick="uploadTest()">上传</button>
-    <p id="uploadStatus"></p>
-
-    <h2>2. 列表测试</h2>
-    <button onclick="loadTest()">刷新列表</button>
-    <ul id="imgList"></ul>
+    <hr>
+    
+    <input type="file" id="f">
+    <button onclick="testUpload()">2. 测试上传接口</button>
+    <p id="res2"></p>
 
     <script>
-        async function loadTest() {
-            const res = await fetch('/api/list');
-            const data = await res.json();
-            console.log('列表数据:', data);
-            
-            const listEl = document.getElementById('imgList');
-            listEl.innerHTML = '';
-            
-            if(data.blobs) {
-                data.blobs.forEach(blob => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<a href="${blob.url}" target="_blank">${blob.pathname}</a>`;
-                    listEl.appendChild(li);
-                });
+        // 注意：这里的路径必须是绝对路径，以防万一
+        const API_LIST = '/api/list';
+        const API_UPLOAD = '/api/upload';
+
+        async function testList() {
+            try {
+                console.log("正在请求:", API_LIST);
+                const res = await fetch(API_LIST);
+                const text = await res.text(); // 先当文本拿，防止JSON解析失败
+                console.log("原始返回:", text);
+                
+                document.getElementById('res1').innerText = "成功！返回: " + text;
+            } catch (err) {
+                console.error(err);
+                document.getElementById('res1').innerText = "失败: " + err.message;
             }
         }
 
-        async function uploadTest() {
-            const file = document.getElementById('fileInput').files[0];
-            if(!file) return alert('先选文件');
+        async function testUpload() {
+            const file = document.getElementById('f').files[0];
+            if(!file) return alert("先选个文件");
 
             const form = new FormData();
             form.append('file', file);
 
-            const res = await fetch('/api/upload', { method: 'POST', body: form });
-            const data = await res.json();
-            console.log('上传结果:', data);
-            document.getElementById('uploadStatus').innerText = data.success ? '成功！' : '失败：' + data.error;
-            if(data.success) loadTest();
+            try {
+                const res = await fetch(API_UPLOAD, { method: 'POST', body: form });
+                const text = await res.text();
+                document.getElementById('res2').innerText = "成功！返回: " + text;
+            } catch (err) {
+                console.error(err);
+                document.getElementById('res2').innerText = "失败: " + err.message;
+            }
         }
-
-        // 页面加载时自动刷一次
-        loadTest();
     </script>
 </body>
 </html>
