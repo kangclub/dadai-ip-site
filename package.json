@@ -1,0 +1,7 @@
+{
+  "name": "dadai-ip-site",
+  "version": "1.0.0",
+  "dependencies": {
+    "@vercel/blob": "^0.23.0"
+  }
+}
