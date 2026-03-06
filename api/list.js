@@ -1,15 +1,18 @@
-import { list } from '@vercel/blob';
+export const dynamic = 'force-dynamic'; // 强制不缓存
 
-export default async function handler(req, res) {
-  // 必须加这一句，防止 Vercel 缓存
-  res.setHeader('Cache-Control', 'no-store');
-  
-  try {
-    const { blobs } = await list();
-    // 直接返回原始数据，不做复杂处理
-    return Response.json({ success: true, blobs });
-  } catch (error) {
-    console.error(error);
-    return Response.json({ success: false, error: error.message }, { status: 500 });
-  }
+export default async function GET(request) {
+  const data = {
+    message: "接口通了",
+    time: new Date().toISOString()
+  };
+
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*', // 关键：允许跨域
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
 }
