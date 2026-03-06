@@ -1,29 +1,35 @@
-import { put } from '@vercel/blob';
-
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return Response.json({ error: 'Method not allowed' }, { status: 405 });
+export default async function POST(request) {
+  // 处理预检请求
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    });
   }
 
   try {
-    const form = await req.formData();
-    const file = form.get('file');
-    
-    if (!file) {
-      return Response.json({ error: 'No file' }, { status: 400 });
-    }
-
-    // 直接上传，不做权限校验，先跑通逻辑
-    const blob = await put(file.name, file, { access: 'public' });
-    return Response.json({ success: true, url: blob.url });
-  } catch (error) {
-    console.error(error);
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+    // 这里先不连 Blob，只测试上传通路
+    return new Response(JSON.stringify({ success: true, test: "上传接口收到请求了" }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+    });
   }
 }
