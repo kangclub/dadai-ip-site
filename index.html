@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>戴大爷IP形象站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* 展示页面样式 */
+        #gallery-view {
+            display: block;
+        }
+
+        .carousel-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .carousel {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-item {
+            min-width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .carousel-item img {
+            max-width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+        }
+
+        .image-info {
+            margin-top: 15px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .image-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .download-btn:hover {
+            background: #5a6fd6;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .carousel-btn:hover {
+            background: #667eea;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .prev-btn {
+            left: -25px;
+        }
+
+        .next-btn {
+            right: -25px;
+        }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: #667eea;
+            transform: scale(1.2);
+        }
+
+        /* 编辑页面样式 */
+        #edit-view {
+            display: none;
+        }
+
+        .edit-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .upload-section h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .add-btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover {
+            background: #5a6fd6;
+            transform: translateY(-2px);
+        }
+
+        .image-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .image-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .image-card .name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #ee5a5a;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            color: white;
+            padding: 20px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .carousel-container {
+                padding: 15px;
+            }
+
+            .carousel-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+
+            .prev-btn {
+                left: -15px;
+            }
+
+            .next-btn {
+                right: -15px;
+            }
+
+            .image-list {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+
+            .edit-container {
+                padding: 20px;
+            }
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #666;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 加载提示 -->
+        <div id="loading" class="loading">加载中...</div>
+
+        <!-- 展示页面 -->
+        <div id="gallery-view" style="display: none;">
+            <h1>戴大爷IP形象站</h1>
+            <div class="carousel-container">
+                <div class="carousel">
+                    <button class="carousel-btn prev-btn" onclick="prevSlide()">‹</button>
+                    <div class="carousel-track" id="carousel-track"></div>
+                    <button class="carousel-btn next-btn" onclick="nextSlide()">›</button>
+                </div>
+                <div class="carousel-dots" id="carousel-dots"></div>
+            </div>
+        </div>
+
+        <!-- 编辑页面 -->
+        <div id="edit-view" style="display: none;">
+            <a href="?" class="back-link">← 返回展示页面</a>
+            <div class="edit-container">
+                <h1>戴大爷IP形象站 - 管理后台</h1>
+                
+                <div class="upload-section">
+                    <h2>添加新形象</h2>
+                    <div class="form-group">
+                        <label for="image-name">形象名称</label>
+                        <input type="text" id="image-name" placeholder="请输入形象名称">
+                    </div>
+                    <div class="form-group">
+                        <label for="image-file">选择PNG图片</label>
+                        <input type="file" id="image-file" accept="image/png">
+                    </div>
+                    <button class="add-btn" onclick="uploadImage()">添加形象</button>
+                </div>
+
+                <h2>现有形象管理</h2>
+                <div class="image-list" id="image-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局配置
+        const AUTH_KEY = "kangclub"; // 编辑权限密钥，和URL参数对应
+        let imagesData = [];
+        let currentSlide = 0;
+
+        // 页面初始化
+        window.onload = async () => {
+            await loadImages();
+            checkUrlParams();
+            document.getElementById("loading").style.display = "none";
+        };
+
+        // 检查URL参数，判断是否进入编辑模式
+        function checkUrlParams() {
+            const isEditMode = window.location.search.includes(AUTH_KEY);
+            document.getElementById('gallery-view').style.display = isEditMode ? 'none' : 'block';
+            document.getElementById('edit-view').style.display = isEditMode ? 'block' : 'none';
+            
+            if (isEditMode) {
+                renderEditList();
+            } else {
+                renderGallery();
+            }
+        }
+
+        // 从接口加载图片列表
+        async function loadImages() {
+            try {
+                const res = await fetch("/api/list");
+                const data = await res.json();
+                imagesData = data.images || [];
+            } catch (err) {
+                console.error("加载图片失败", err);
+                alert("图片列表加载失败，请刷新重试");
+            }
+        }
+
+        // 渲染轮播展示页
+        function renderGallery() {
+            const track = document.getElementById('carousel-track');
+            const dots = document.getElementById('carousel-dots');
+            currentSlide = 0; // 重置轮播位置
+            
+            if (imagesData.length === 0) {
+                track.innerHTML = `
+                    <div class="carousel-item">
+                        <div class="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                            </svg>
+                            <h3>暂无图片</h3>
+                            <p>请在网址后添加 ?${AUTH_KEY} 进入管理后台添加图片</p>
+                        </div>
+                    </div>
+                `;
+                dots.innerHTML = '';
+                return;
+            }
+
+            // 渲染轮播项
+            track.innerHTML = imagesData.map((img, index) => `
+                <div class="carousel-item">
+                    <img src="${img.url}" alt="${img.name}" loading="lazy">
+                    <div class="image-info">
+                        <div class="image-name">${img.name}</div>
+                        <a class="download-btn" href="${img.url}" download="${img.name}.png" target="_blank">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                            下载图片
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+
+            // 渲染轮播圆点
+            dots.innerHTML = imagesData.map((_, index) => `
+                <div class="dot ${index === currentSlide ? 'active' : ''}" onclick="goToSlide(${index})"></div>
+            `).join('');
+
+            updateCarousel();
+        }
+
+        // 轮播核心功能
+        function updateCarousel() {
+            const track = document.getElementById('carousel-track');
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            document.querySelectorAll('.dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            if (imagesData.length === 0) return;
+            currentSlide = (currentSlide + 1) % imagesData.length;
+            updateCarousel();
+        }
+
+        function prevSlide() {
+            if (imagesData.length === 0) return;
+            currentSlide = (currentSlide - 1 + imagesData.length) % imagesData.length;
+            updateCarousel();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateCarousel();
+        }
+
+        // 渲染编辑页图片列表
+        function renderEditList() {
+            const list = document.getElementById('image-list');
+            
+            if (imagesData.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                        </svg>
+                        <h3>暂无图片</h3>
+                        <p>使用上方表单添加新的形象图片</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = imagesData.map((img) => `
+                <div class="image-card">
+                    <img src="${img.url}" alt="${img.name}" loading="lazy">
+                    <div class="name">${img.name}</div>
+                    <button class="delete-btn" onclick="deleteImage('${img.url}', '${img.name}')">删除</button>
+                </div>
+            `).join('');
+        }
+
+        // 上传图片
+        async function uploadImage() {
+            const nameInput = document.getElementById('image-name');
+            const fileInput = document.getElementById('image-file');
+            
+            const name = nameInput.value.trim();
+            const file = fileInput.files[0];
+            
+            if (!name) {
+                alert('请输入形象名称！');
+                return;
+            }
+            
+            if (!file) {
+                alert('请选择PNG图片文件！');
+                return;
+            }
+
+            // 构造表单数据
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('file', file);
+            formData.append('auth', AUTH_KEY);
+
+            try {
+                const res = await fetch("/api/upload", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    alert('添加成功！');
+                    // 清空表单
+                    nameInput.value = '';
+                    fileInput.value = '';
+                    // 重新加载图片列表
+                    await loadImages();
+                    renderEditList();
+                } else {
+                    alert('上传失败：' + result.message);
+                }
+            } catch (err) {
+                console.error("上传失败", err);
+                alert('上传失败，请重试');
+            }
+        }
+
+        // 删除图片
+        async function deleteImage(url, name) {
+            if (!confirm(`确定要删除「${name}」吗？删除后无法恢复！`)) return;
+
+            try {
+                const res = await fetch("/api/delete", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url, auth: AUTH_KEY })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    alert('删除成功！');
+                    await loadImages();
+                    renderEditList();
+                } else {
+                    alert('删除失败：' + result.message);
+                }
+            } catch (err) {
+                console.error("删除失败", err);
+                alert('删除失败，请重试');
+            }
+        }
+    </script>
+</body>
+</html>
